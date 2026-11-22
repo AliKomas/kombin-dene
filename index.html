@@ -3,68 +3,82 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Kombin Dene — Kıyafeti üzerinde gör</title>
-<meta name="description" content="Fotoğrafını yükle, herhangi bir mağazadan kıyafet görseli ekle, yapay zekâ üzerine giydirsin." />
+<title>Kombin Dene — Kombini üzerinde gör</title>
+<meta name="description" content="Fotoğrafını yükle, herhangi bir mağazadan üst, alt, ayakkabı ekle; yapay zekâ hepsini birlikte üzerine giydirsin ve 360° video oluştursun." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
   :root {
     --bg: #f6f1ea; --ink: #1d1a17; --muted: #6f665c; --line: #e2d8cb;
-    --card: #fffdf9; --accent: #c2502e; --accent-ink: #fff; --ok: #2f7a4b;
-    --radius: 18px;
+    --card: #fffdf9; --accent: #c2502e; --accent-ink: #fff; --radius: 18px;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 Inter, system-ui, sans-serif; }
-  header { max-width: 1120px; margin: 0 auto; padding: 36px 20px 8px; }
-  .brand { font-family: Fraunces, serif; font-weight: 700; font-size: 20px; letter-spacing: .2px; }
+  header { max-width: 1180px; margin: 0 auto; padding: 36px 20px 8px; }
+  .brand { font-family: Fraunces, serif; font-weight: 700; font-size: 20px; }
   .brand span { color: var(--accent); }
-  h1 { font-family: Fraunces, serif; font-weight: 500; font-size: clamp(32px, 5vw, 54px); line-height: 1.05; margin: 28px 0 10px; max-width: 760px; }
-  .lead { color: var(--muted); max-width: 620px; margin: 0; }
-  main { max-width: 1120px; margin: 0 auto; padding: 28px 20px 60px; display: grid; gap: 22px; grid-template-columns: 1fr 1fr 1.15fr; }
-  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  h1 { font-family: Fraunces, serif; font-weight: 500; font-size: clamp(32px, 5vw, 54px); line-height: 1.05; margin: 28px 0 10px; max-width: 780px; }
+  .lead { color: var(--muted); max-width: 640px; margin: 0; }
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 20px 60px; display: grid; gap: 22px; grid-template-columns: 0.9fr 1.1fr 1.15fr; align-items: start; }
+  @media (max-width: 960px) { main { grid-template-columns: 1fr; } }
 
   .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
   .step { font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); }
   .card h2 { margin: 0; font-size: 18px; font-weight: 600; }
   .hint { font-size: 13px; color: var(--muted); margin: 0; }
+  input[type=file] { display: none; }
 
+  /* Kişi */
   .drop { position: relative; aspect-ratio: 3/4; border: 1.5px dashed #cbbfae; border-radius: 14px; background: #faf6f0;
           display: grid; place-items: center; text-align: center; cursor: pointer; overflow: hidden; transition: border-color .15s, background .15s; }
   .drop:hover, .drop.over { border-color: var(--accent); background: #fbefe8; }
-  .drop.active { outline: 2px solid var(--accent); outline-offset: 2px; }
   .drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; }
-  .drop .ph { padding: 20px; color: var(--muted); font-size: 14px; }
-  .drop .ph b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
-  .drop .clear { position: absolute; top: 8px; right: 8px; z-index: 2; border: 0; background: rgba(29,26,23,.75); color: #fff;
-                 width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: none; }
-  .drop.has .clear { display: block; }
-  input[type=file] { display: none; }
+  .ph { padding: 20px; color: var(--muted); font-size: 14px; }
+  .ph b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+  .x { position: absolute; top: 6px; right: 6px; z-index: 2; border: 0; background: rgba(29,26,23,.75); color: #fff;
+       width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 15px; line-height: 28px; padding: 0; }
+  .drop .x { display: none; } .drop.has .x { display: block; }
+
+  /* Kombin parçaları */
+  .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .piece { position: relative; border: 1px solid var(--line); border-radius: 12px; background: #fff; overflow: hidden; display: flex; flex-direction: column; }
+  .piece .thumb { aspect-ratio: 1; background: #fff center/contain no-repeat; }
+  .piece select { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 8px; font: inherit; font-size: 13px; background: #faf6f0; color: var(--ink); }
+  .add { aspect-ratio: auto; min-height: 150px; border: 1.5px dashed #cbbfae; border-radius: 12px; background: #faf6f0; color: var(--muted);
+         display: grid; place-items: center; text-align: center; cursor: pointer; font-size: 13px; padding: 10px; transition: border-color .15s, background .15s; }
+  .add:hover, .add.over { border-color: var(--accent); background: #fbefe8; }
+  .add b { display: block; font-size: 26px; color: var(--accent); font-weight: 500; line-height: 1; margin-bottom: 6px; }
+  .add[hidden] { display: none; }
 
   .row { display: flex; gap: 8px; }
-  input[type=url], input[type=password], select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font: inherit; font-size: 14px; color: var(--ink); }
+  input[type=url], input[type=password] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font: inherit; font-size: 14px; color: var(--ink); }
   .btn-sm { padding: 10px 14px; border: 1px solid var(--ink); background: var(--ink); color: #fff; border-radius: 10px; font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap; }
-
-  .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   label.f { font-size: 12px; color: var(--muted); display: grid; gap: 4px; }
-  .go { margin-top: 4px; padding: 15px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 600; font-size: 16px; cursor: pointer; transition: transform .1s, opacity .15s; }
+
+  .go { padding: 15px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 600; font-size: 16px; cursor: pointer; transition: transform .1s, opacity .15s; }
+  .go.alt { background: var(--ink); }
   .go:active { transform: scale(.99); }
   .go:disabled { opacity: .45; cursor: not-allowed; }
 
+  /* Sonuç */
   .result { position: relative; aspect-ratio: 3/4; border-radius: 14px; background: #efe7dc; overflow: hidden; display: grid; place-items: center; }
-  .result img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+  .result img, .result video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; }
   .result .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 24px; }
-  .loader { display: none; flex-direction: column; align-items: center; gap: 14px; color: var(--muted); font-size: 14px; }
+  .loader { display: none; position: absolute; inset: 0; z-index: 3; background: rgba(239,231,220,.88); flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--ink); font-size: 14px; text-align: center; padding: 20px; }
   .loading .loader { display: flex; }
-  .loading .empty, .loading img { display: none; }
   .spin { width: 42px; height: 42px; border-radius: 50%; border: 3px solid #d9cdbd; border-top-color: var(--accent); animation: s 1s linear infinite; }
   @keyframes s { to { transform: rotate(360deg); } }
+  .tabs { display: flex; gap: 6px; }
+  .tabs button { flex: 1; padding: 8px; border: 1px solid var(--line); background: #fff; border-radius: 10px; font: inherit; font-size: 13px; cursor: pointer; color: var(--ink); }
+  .tabs button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .tabs[hidden] { display: none; }
   .msg { font-size: 14px; min-height: 20px; margin: 0; }
   .msg.err { color: #b3261e; }
   .actions { display: flex; gap: 8px; }
-  .actions a, .actions button { flex: 1; text-align: center; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); text-decoration: none; font: inherit; font-size: 14px; cursor: pointer; }
-  .actions[hidden] { display: none; }
+  .actions a { flex: 1; text-align: center; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); text-decoration: none; font-size: 14px; }
+  .actions[hidden], .go[hidden] { display: none; }
 
-  footer { max-width: 1120px; margin: 0 auto; padding: 0 20px 40px; color: var(--muted); font-size: 13px; }
+  footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--muted); font-size: 13px; }
   .tips { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px; }
   .tips div { border-top: 1px solid var(--line); padding-top: 10px; }
   .tips b { color: var(--ink); display: block; margin-bottom: 2px; font-weight: 600; }
@@ -73,8 +87,8 @@
 <body>
 <header>
   <div class="brand">kombin<span>.</span>dene</div>
-  <h1>Kıyafeti almadan önce üzerinde gör.</h1>
-  <p class="lead">Kendi fotoğrafını yükle, Trendyol, Zara, Amazon ya da herhangi bir mağazadan beğendiğin kıyafetin görselini ekle. Yapay zekâ onu senin üzerine giydirsin.</p>
+  <h1>Kombini almadan önce üzerinde gör.</h1>
+  <p class="lead">Fotoğrafını yükle, herhangi bir mağazadan üst, alt, ayakkabı ve aksesuar ekle. Yapay zekâ hepsini birlikte üzerine giydirsin, istersen 360° dönen bir video da oluştursun.</p>
 </header>
 
 <main>
@@ -82,85 +96,79 @@
   <section class="card">
     <div class="step">Adım 1</div>
     <h2>Senin fotoğrafın</h2>
-    <label class="drop" id="personDrop" data-target="person">
-      <button class="clear" type="button" aria-label="Kaldır">×</button>
-      <div class="ph"><b>Fotoğraf yükle</b>Tıkla, sürükle-bırak ya da yapıştır (Ctrl+V)</div>
+    <label class="drop" id="personDrop">
+      <button class="x" type="button" id="personClear" aria-label="Kaldır">×</button>
+      <div class="ph"><b>Fotoğraf yükle</b>Tıkla, sürükle-bırak ya da yapıştır</div>
       <input type="file" accept="image/*" id="personFile" />
     </label>
-    <p class="hint">En iyi sonuç: önden, tek kişi, belden yukarısı ya da boy fotoğrafı, sade arka plan.</p>
+    <p class="hint">En iyi sonuç: önden, tek kişi, boy fotoğrafı, iyi ışık. Yüzün net görünsün.</p>
   </section>
 
-  <!-- 2. Kıyafet -->
+  <!-- 2. Kombin -->
   <section class="card">
     <div class="step">Adım 2</div>
-    <h2>Kıyafet görseli</h2>
-    <label class="drop" id="garmentDrop" data-target="garment">
-      <button class="clear" type="button" aria-label="Kaldır">×</button>
-      <div class="ph"><b>Kıyafet görseli ekle</b>Ekran görüntüsü, indirdiğin görsel ya da kopyalanan resim</div>
-      <input type="file" accept="image/*" id="garmentFile" />
-    </label>
+    <h2>Kombinini oluştur <span class="hint" id="count">(0/5)</span></h2>
+    <div class="pieces" id="pieces">
+      <label class="add" id="addPiece">
+        <div><b>+</b>Parça ekle<br />üst, alt, ayakkabı…</div>
+        <input type="file" accept="image/*" id="pieceFile" multiple />
+      </label>
+    </div>
     <div class="row">
-      <input type="url" id="garmentUrl" placeholder="veya görsel adresini yapıştır (https://...jpg)" />
+      <input type="url" id="pieceUrl" placeholder="veya görsel adresi yapıştır (https://…jpg)" />
       <button class="btn-sm" type="button" id="useUrl">Ekle</button>
     </div>
-    <p class="hint">İpucu: mağazada ürün resmine sağ tıkla → “Resim adresini kopyala”. Ürün sayfası linki değil, resmin kendi linki olmalı.</p>
+    <p class="hint">Her parçanın altından türünü seç. Mağazada ürün resmine sağ tıkla → “Resim adresini kopyala”, ya da ekran görüntüsünü Ctrl+V ile yapıştır.</p>
   </section>
 
   <!-- 3. Sonuç -->
   <section class="card">
     <div class="step">Adım 3</div>
     <h2>Üzerinde nasıl duruyor?</h2>
-    <div class="settings">
-      <label class="f">Kıyafet türü
-        <select id="category">
-          <option value="auto">Otomatik</option>
-          <option value="tops">Üst (tişört, gömlek, ceket)</option>
-          <option value="bottoms">Alt (pantolon, etek)</option>
-          <option value="one-pieces">Tek parça (elbise, tulum)</option>
-        </select>
-      </label>
-      <label class="f">Model
-        <select id="model">
-          <option value="kling">Kling Kolors (önerilen)</option>
-          <option value="fashn">FASHN (desen/yazı)</option>
-          <option value="leffa">Leffa</option>
-        </select>
-      </label>
-      <label class="f" id="codeWrap" style="grid-column: 1 / -1">Giriş kodu (varsa)
-        <input type="password" id="code" placeholder="Site sahibi kod belirlediyse gir" />
-      </label>
+    <label class="f" id="codeWrap">Giriş kodu (varsa)
+      <input type="password" id="code" placeholder="Site sahibi kod belirlediyse gir" />
+    </label>
+    <button class="go" id="go" disabled>Kombini üzerime giydir</button>
+    <div class="tabs" id="tabs" hidden>
+      <button type="button" data-view="image" class="on">Fotoğraf</button>
+      <button type="button" data-view="video">360° video</button>
     </div>
-    <button class="go" id="go" disabled>Üzerime giydir</button>
     <div class="result" id="result">
       <div class="empty">Sonuç burada görünecek.</div>
+      <img id="resultImg" alt="Kombin sonucu" hidden />
+      <video id="resultVid" autoplay loop muted playsinline controls hidden></video>
       <div class="loader"><div class="spin"></div><span id="loadText">Giydiriliyor…</span></div>
-      <img id="resultImg" alt="Sanal deneme sonucu" hidden />
     </div>
     <p class="msg" id="msg"></p>
+    <button class="go alt" id="makeVideo" hidden>360° video oluştur</button>
     <div class="actions" id="actions" hidden>
-      <a id="download" href="#" target="_blank" rel="noopener" download="kombin.jpg">İndir</a>
-      <button type="button" id="again">Tekrar dene</button>
+      <a id="dlImg" href="#" target="_blank" rel="noopener">Fotoğrafı aç / indir</a>
+      <a id="dlVid" href="#" target="_blank" rel="noopener" hidden>Videoyu aç / indir</a>
     </div>
   </section>
 </main>
 
 <footer>
   <div class="tips">
-    <div><b>Fotoğrafın saklanmaz</b>Görseller yalnızca giydirme için yapay zekâ servisine gönderilir.</div>
-    <div><b>Yaklaşık 15–60 saniye</b>Sıra yoğunsa biraz daha uzun sürebilir.</div>
+    <div><b>5 parçaya kadar</b>Üst, alt, dış giyim, ayakkabı ve aksesuarı aynı anda giydirebilirsin.</div>
+    <div><b>Fotoğraf ~20 sn, video 1–3 dk</b>Sıra yoğunsa biraz daha uzun sürebilir.</div>
     <div><b>Sonuç bir önizlemedir</b>Beden ve kalıp birebir yansımayabilir.</div>
   </div>
-  Yalnızca kendi fotoğrafını ya da izni olan kişilerin fotoğrafını kullan.
+  Yalnızca kendi fotoğrafını ya da izni olan kişilerin fotoğrafını kullan. Fotoğraflar sitede saklanmaz.
 </footer>
 
 <script>
-const state = { person: null, garment: null, active: "person" };
+const MAX = 5;
+const TYPES = [
+  ["ust", "Üst"], ["alt", "Alt"], ["elbise", "Elbise / tulum"],
+  ["dis", "Ceket / mont"], ["ayakkabi", "Ayakkabı"], ["aksesuar", "Çanta / aksesuar"],
+];
+const state = { person: null, pieces: [], image: null, video: null };
 const $ = (id) => document.getElementById(id);
 const store = { get(k){ try { return localStorage.getItem(k); } catch { return null; } },
                 set(k,v){ try { localStorage.setItem(k,v); } catch {} } };
 
-// Görseli tarayıcıda küçült (max 1024px, JPEG) — hem hızlı hem sunucu sınırının altında
-function shrink(file, max = 1024) {
+function shrink(file, max) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -172,123 +180,174 @@ function shrink(file, max = 1024) {
       ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
       ctx.drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url);
-      resolve(c.toDataURL("image/jpeg", 0.9));
+      resolve(c.toDataURL("image/jpeg", 0.88));
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Görsel okunamadı")); };
     img.src = url;
   });
 }
 
-function setImage(target, src) {
-  state[target] = src;
-  const drop = $(target + "Drop");
-  drop.querySelector("img")?.remove();
-  if (src) {
-    const img = document.createElement("img");
-    img.src = src; img.alt = "";
-    img.onerror = () => { if (target === "garment" && src.startsWith("http")) setMsg("Bu adresteki görsel önizlenemedi; yine de denenebilir. Olmazsa görseli indirip yükle.", true); };
-    drop.appendChild(img);
-    drop.classList.add("has");
-  } else drop.classList.remove("has");
-  $("go").disabled = !(state.person && state.garment);
-}
+function setMsg(t, err = false) { $("msg").textContent = t; $("msg").className = "msg" + (err ? " err" : ""); }
+function refreshGo() { $("go").disabled = !(state.person && state.pieces.length); }
 
-async function handleFile(target, file) {
-  if (!file || !file.type.startsWith("image/")) return setMsg("Lütfen bir görsel dosyası seç.", true);
-  try { setImage(target, await shrink(file)); setMsg(""); }
-  catch (e) { setMsg(e.message, true); }
+/* ---------- Kişi ---------- */
+function setPerson(src) {
+  state.person = src;
+  const d = $("personDrop");
+  d.querySelector("img")?.remove();
+  if (src) { const i = document.createElement("img"); i.src = src; i.alt = ""; d.appendChild(i); d.classList.add("has"); }
+  else d.classList.remove("has");
+  refreshGo();
 }
-
-function setActive(t) {
-  state.active = t;
-  ["person", "garment"].forEach(x => $(x + "Drop").classList.toggle("active", x === t));
+async function personFile(f) {
+  if (!f?.type.startsWith("image/")) return setMsg("Lütfen bir görsel seç.", true);
+  try { setPerson(await shrink(f, 1024)); setMsg(""); } catch (e) { setMsg(e.message, true); }
 }
+$("personFile").addEventListener("change", (e) => personFile(e.target.files[0]));
+$("personClear").addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); $("personFile").value = ""; setPerson(null); });
+dropZone($("personDrop"), (f) => personFile(f), (u) => setPerson(u));
 
-["person", "garment"].forEach((t) => {
-  const drop = $(t + "Drop"), input = $(t + "File");
-  input.addEventListener("change", () => handleFile(t, input.files[0]));
-  drop.addEventListener("click", () => setActive(t));
-  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
-  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
-  drop.addEventListener("drop", (e) => {
-    e.preventDefault(); drop.classList.remove("over");
-    const f = e.dataTransfer.files[0];
-    if (f) return handleFile(t, f);
-    const url = e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain");
-    if (url && /^https:\/\//.test(url)) setImage(t, url.trim());
+/* ---------- Parçalar ---------- */
+function guessType() {
+  const used = state.pieces.map(p => p.type);
+  return ["ust", "alt", "ayakkabi", "dis", "aksesuar"].find(t => !used.includes(t)) || "aksesuar";
+}
+function addPiece(image) {
+  if (state.pieces.length >= MAX) return setMsg(`En fazla ${MAX} parça ekleyebilirsin.`, true);
+  state.pieces.push({ image, type: guessType() });
+  renderPieces(); setMsg("");
+}
+async function pieceFiles(files) {
+  for (const f of files) {
+    if (!f.type.startsWith("image/")) continue;
+    if (state.pieces.length >= MAX) { setMsg(`En fazla ${MAX} parça ekleyebilirsin.`, true); break; }
+    try { addPiece(await shrink(f, 768)); } catch (e) { setMsg(e.message, true); }
+  }
+}
+function renderPieces() {
+  const wrap = $("pieces"), add = $("addPiece");
+  wrap.querySelectorAll(".piece").forEach(n => n.remove());
+  state.pieces.forEach((p, i) => {
+    const el = document.createElement("div");
+    el.className = "piece";
+    const th = document.createElement("div");
+    th.className = "thumb"; th.style.backgroundImage = `url("${p.image.replace(/"/g, "%22")}")`;
+    const x = document.createElement("button");
+    x.className = "x"; x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", "Kaldır");
+    x.onclick = () => { state.pieces.splice(i, 1); renderPieces(); };
+    const sel = document.createElement("select");
+    TYPES.forEach(([v, l]) => { const o = new Option(l, v, false, v === p.type); sel.add(o); });
+    sel.onchange = () => { p.type = sel.value; };
+    el.append(th, x, sel);
+    wrap.insertBefore(el, add);
   });
-  drop.querySelector(".clear").addEventListener("click", (e) => {
-    e.preventDefault(); e.stopPropagation(); input.value = ""; setImage(t, null);
-  });
+  add.hidden = state.pieces.length >= MAX;
+  $("count").textContent = `(${state.pieces.length}/${MAX})`;
+  refreshGo();
+}
+$("pieceFile").addEventListener("change", (e) => { pieceFiles([...e.target.files]); e.target.value = ""; });
+dropZone($("addPiece"), null, (u) => addPiece(u), (fs) => pieceFiles(fs));
+$("useUrl").addEventListener("click", () => {
+  const u = $("pieceUrl").value.trim();
+  if (!/^https:\/\/\S+$/.test(u)) return setMsg("Geçerli bir https:// görsel adresi gir.", true);
+  addPiece(u); $("pieceUrl").value = "";
 });
 
-// Ctrl+V ile yapıştırma: kişi boşsa kişiye, değilse kıyafete
+function dropZone(el, onFile, onUrl, onFiles) {
+  el.addEventListener("dragover", (e) => { e.preventDefault(); el.classList.add("over"); });
+  el.addEventListener("dragleave", () => el.classList.remove("over"));
+  el.addEventListener("drop", (e) => {
+    e.preventDefault(); e.stopPropagation(); el.classList.remove("over");
+    const fs = [...e.dataTransfer.files];
+    if (fs.length) return onFiles ? onFiles(fs) : onFile(fs[0]);
+    const u = (e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain") || "").trim();
+    if (/^https:\/\/\S+$/.test(u)) onUrl(u);
+  });
+}
+
+// Ctrl+V: kişi fotoğrafı yoksa kişiye, varsa kombine parça olarak ekle
 document.addEventListener("paste", (e) => {
   if (e.target.tagName === "INPUT") return;
-  const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith("image/"));
-  if (!item) return;
-  const target = state.active === "garment" || state.person ? "garment" : "person";
-  handleFile(target, item.getAsFile());
+  const files = [...(e.clipboardData?.items || [])].filter(i => i.type.startsWith("image/")).map(i => i.getAsFile());
+  if (!files.length) return;
+  if (!state.person) personFile(files.shift());
+  if (files.length) pieceFiles(files);
 });
 
-$("useUrl").addEventListener("click", () => {
-  const u = $("garmentUrl").value.trim();
-  if (!/^https:\/\/\S+$/.test(u)) return setMsg("Geçerli bir https:// görsel adresi gir.", true);
-  setImage("garment", u); setMsg("");
-});
-
+/* ---------- Sonuç ---------- */
 $("code").value = store.get("kd_code") || "";
-
-function setMsg(t, err = false) { $("msg").textContent = t; $("msg").className = "msg" + (err ? " err" : ""); }
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-async function run() {
-  const go = $("go"), result = $("result"), img = $("resultImg");
-  go.disabled = true; setMsg(""); $("actions").hidden = true;
-  result.classList.add("loading"); $("loadText").textContent = "Gönderiliyor…";
-  store.set("kd_code", $("code").value);
-
-  try {
-    const r = await fetch("/api/tryon", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        person: state.person, garment: state.garment,
-        model: $("model").value, category: $("category").value, code: $("code").value,
-      }),
-    });
-    const job = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(job.error || "Gönderilemedi");
-
-    const q = new URLSearchParams({ status_url: job.status_url, response_url: job.response_url });
-    const started = Date.now();
-    while (true) {
-      await sleep(2500);
-      const secs = Math.round((Date.now() - started) / 1000);
-      const s = await fetch("/api/status?" + q);
-      const d = await s.json().catch(() => ({}));
-      if (!s.ok) throw new Error(d.error || "Durum alınamadı");
-      if (d.done) {
-        img.src = d.image; img.hidden = false;
-        $("download").href = d.image; $("actions").hidden = false;
-        setMsg("Hazır!");
-        break;
-      }
-      $("loadText").textContent = d.status === "IN_QUEUE"
-        ? `Sırada bekleniyor${d.position != null ? " (" + d.position + ")" : ""}… ${secs} sn`
-        : `Giydiriliyor… ${secs} sn`;
-      if (secs > 240) throw new Error("Zaman aşımı. Lütfen tekrar dene.");
-    }
-  } catch (e) {
-    setMsg(e.message, true);
-  } finally {
-    result.classList.remove("loading");
-    go.disabled = !(state.person && state.garment);
+async function poll(job, label, limitSec) {
+  const q = new URLSearchParams({ status_url: job.status_url, response_url: job.response_url });
+  const t0 = Date.now();
+  while (true) {
+    await sleep(3000);
+    const secs = Math.round((Date.now() - t0) / 1000);
+    const s = await fetch("/api/status?" + q);
+    const d = await s.json().catch(() => ({}));
+    if (!s.ok) throw new Error(d.error || "Durum alınamadı");
+    if (d.done) return d;
+    $("loadText").textContent = d.status === "IN_QUEUE"
+      ? `Sırada bekleniyor${d.position != null ? " (" + d.position + ")" : ""}… ${secs} sn`
+      : `${label}… ${secs} sn`;
+    if (secs > limitSec) throw new Error("Zaman aşımı. Lütfen tekrar dene.");
   }
 }
 
-$("go").addEventListener("click", run);
-$("again").addEventListener("click", run);
-setActive("person");
+async function post(url, body) {
+  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || "İstek gönderilemedi");
+  return d;
+}
+
+function show(view) {
+  $("resultImg").hidden = view !== "image" || !state.image;
+  $("resultVid").hidden = view !== "video" || !state.video;
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.view === view));
+  if (view === "video" && state.video) $("resultVid").play().catch(() => {});
+}
+document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
+
+function busy(on, text) {
+  $("result").classList.toggle("loading", on);
+  if (text) $("loadText").textContent = text;
+  $("go").disabled = on || !(state.person && state.pieces.length);
+  $("makeVideo").disabled = on;
+}
+
+$("go").addEventListener("click", async () => {
+  setMsg(""); store.set("kd_code", $("code").value);
+  busy(true, "Gönderiliyor…");
+  try {
+    const job = await post("/api/tryon", {
+      person: state.person, garments: state.pieces, code: $("code").value,
+    });
+    const d = await poll(job, "Kombin giydiriliyor", 240);
+    state.image = d.image; state.video = null;
+    $("resultImg").src = d.image; $("resultVid").removeAttribute("src");
+    $("result").querySelector(".empty").hidden = true;
+    $("dlImg").href = d.image; $("dlVid").hidden = true; $("actions").hidden = false;
+    $("tabs").hidden = true; $("makeVideo").hidden = false;
+    show("image"); setMsg("Hazır! İstersen 360° video da oluşturabilirsin.");
+  } catch (e) { setMsg(e.message, true); }
+  finally { busy(false); }
+});
+
+$("makeVideo").addEventListener("click", async () => {
+  if (!state.image) return;
+  setMsg(""); busy(true, "Video hazırlanıyor…");
+  try {
+    const job = await post("/api/video", { image: state.image, code: $("code").value });
+    const d = await poll(job, "360° video oluşturuluyor (1–3 dk)", 600);
+    state.video = d.video;
+    $("resultVid").src = d.video; $("dlVid").href = d.video; $("dlVid").hidden = false;
+    $("tabs").hidden = false; $("makeVideo").hidden = true;
+    show("video"); setMsg("Video hazır!");
+  } catch (e) { setMsg(e.message, true); }
+  finally { busy(false); }
+});
 </script>
 </body>
 </html>

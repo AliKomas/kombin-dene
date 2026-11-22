@@ -1,6 +1,11 @@
 # kombin.dene — Sanal Kıyafet Deneme Sitesi
 
-Kullanıcı kendi fotoğrafını yükler, herhangi bir mağazadan (Trendyol, Zara, Amazon…) kıyafet görseli ekler, yapay zekâ kıyafeti kişinin üzerine giydirir.
+Kullanıcı kendi fotoğrafını yükler, herhangi bir mağazadan (Trendyol, Zara, Amazon…) 5 parçaya kadar kıyafet ekler (üst, alt, ceket, ayakkabı, aksesuar). Yapay zekâ hepsini **tek kombin** olarak kişinin üzerine giydirir, istenirse **360° dönen video** oluşturur.
+
+| İşlem | Model (fal.ai) | Yaklaşık ücret |
+|---|---|---|
+| Kombin fotoğrafı | `fal-ai/nano-banana/edit` (Google Gemini) | ~0,04 $ |
+| 360° video (5 sn) | `fal-ai/kling-video/v2.5-turbo/pro/image-to-video` | 0,35 $ |
 
 ## Nasıl çalışır?
 
@@ -8,7 +13,7 @@ Kullanıcı kendi fotoğrafını yükler, herhangi bir mağazadan (Trendyol, Zar
 Tarayıcı (index.html)
    │  1) fotoğraflar küçültülür, /api/tryon'a gönderilir
    ▼
-Vercel sunucu fonksiyonu (api/tryon.js)  ── FAL_KEY burada gizli ──►  fal.ai (Kling / FASHN / Leffa)
+Vercel sunucu fonksiyonu (api/tryon.js, api/video.js)  ── FAL_KEY gizli ──►  fal.ai
    │  2) tarayıcı birkaç saniyede bir /api/status'a sorar
    ▼
 api/status.js  ── sonuç hazırsa görsel adresini döner
@@ -20,7 +25,7 @@ API anahtarın hiçbir zaman tarayıcıya gitmez.
 
 ### 1. fal.ai anahtarı al
 1. https://fal.ai adresine üye ol.
-2. Hesabına biraz bakiye yükle (her giydirme yaklaşık 0,04–0,10 $).
+2. Hesabına biraz bakiye yükle (kombin fotoğrafı ~0,04 $, video 0,35 $).
 3. **Dashboard → Keys → Add key** ile bir anahtar oluştur ve kopyala.
 
 ### 2. Kodu GitHub'a yükle
@@ -53,7 +58,7 @@ Sonra http://localhost:3000 adresini aç.
 ## Önemli notlar
 
 - **Masraf:** Herkese açık bırakırsan başkaları da senin bakiyenle giydirme yapabilir. Başta `ACCESS_CODE` koyman ve fal.ai'de harcama limiti belirlemen önerilir. Sonra üyelik/kredi sistemi eklenebilir.
-- **Modeller:** Kling Kolors ve Leffa ticari kullanım lisanslı olarak geçiyor. FASHN'ın ticari koşullarını yayına almadan önce fal.ai sayfasından kontrol et.
+- **Modeller:** Ticari kullanım koşullarını yayına almadan önce her modelin fal.ai sayfasından kontrol et.
 - **Mağaza görselleri:** Ürün sayfası linki değil, *resmin kendi adresi* gerekir (resme sağ tık → "Resim adresini kopyala"). Bazı siteler dışarıdan erişimi engeller; o zaman görseli indirip yüklemek ya da ekran görüntüsü almak yeterli.
 - **Gizlilik:** Fotoğraflar sunucuda saklanmaz, yalnızca fal.ai'ye işlenmek üzere gönderilir. Türkiye'de yayına alırken KVKK aydınlatma metni eklemen iyi olur.
 
@@ -62,6 +67,7 @@ Sonra http://localhost:3000 adresini aç.
 | Dosya | Görevi |
 |---|---|
 | `index.html` | Sitenin arayüzü (yükleme, ayarlar, sonuç) |
-| `api/tryon.js` | Görselleri fal.ai kuyruğuna gönderir |
+| `api/tryon.js` | Kişi + kıyafet görsellerini tek kombin isteği olarak gönderir |
+| `api/video.js` | Kombin fotoğrafından 360° video isteği gönderir |
 | `api/status.js` | İşin durumunu sorar, bitince sonucu döner |
 | `vercel.json` | Vercel fonksiyon ayarları |
