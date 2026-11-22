@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kombin Dene — Kıyafeti üzerinde gör</title>
+<meta name="description" content="Fotoğrafını yükle, herhangi bir mağazadan kıyafet görseli ekle, yapay zekâ üzerine giydirsin." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f6f1ea; --ink: #1d1a17; --muted: #6f665c; --line: #e2d8cb;
+    --card: #fffdf9; --accent: #c2502e; --accent-ink: #fff; --ok: #2f7a4b;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 Inter, system-ui, sans-serif; }
+  header { max-width: 1120px; margin: 0 auto; padding: 36px 20px 8px; }
+  .brand { font-family: Fraunces, serif; font-weight: 700; font-size: 20px; letter-spacing: .2px; }
+  .brand span { color: var(--accent); }
+  h1 { font-family: Fraunces, serif; font-weight: 500; font-size: clamp(32px, 5vw, 54px); line-height: 1.05; margin: 28px 0 10px; max-width: 760px; }
+  .lead { color: var(--muted); max-width: 620px; margin: 0; }
+  main { max-width: 1120px; margin: 0 auto; padding: 28px 20px 60px; display: grid; gap: 22px; grid-template-columns: 1fr 1fr 1.15fr; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .step { font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); }
+  .card h2 { margin: 0; font-size: 18px; font-weight: 600; }
+  .hint { font-size: 13px; color: var(--muted); margin: 0; }
+
+  .drop { position: relative; aspect-ratio: 3/4; border: 1.5px dashed #cbbfae; border-radius: 14px; background: #faf6f0;
+          display: grid; place-items: center; text-align: center; cursor: pointer; overflow: hidden; transition: border-color .15s, background .15s; }
+  .drop:hover, .drop.over { border-color: var(--accent); background: #fbefe8; }
+  .drop.active { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; }
+  .drop .ph { padding: 20px; color: var(--muted); font-size: 14px; }
+  .drop .ph b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+  .drop .clear { position: absolute; top: 8px; right: 8px; z-index: 2; border: 0; background: rgba(29,26,23,.75); color: #fff;
+                 width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: none; }
+  .drop.has .clear { display: block; }
+  input[type=file] { display: none; }
+
+  .row { display: flex; gap: 8px; }
+  input[type=url], input[type=password], select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font: inherit; font-size: 14px; color: var(--ink); }
+  .btn-sm { padding: 10px 14px; border: 1px solid var(--ink); background: var(--ink); color: #fff; border-radius: 10px; font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap; }
+
+  .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  label.f { font-size: 12px; color: var(--muted); display: grid; gap: 4px; }
+  .go { margin-top: 4px; padding: 15px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 600; font-size: 16px; cursor: pointer; transition: transform .1s, opacity .15s; }
+  .go:active { transform: scale(.99); }
+  .go:disabled { opacity: .45; cursor: not-allowed; }
+
+  .result { position: relative; aspect-ratio: 3/4; border-radius: 14px; background: #efe7dc; overflow: hidden; display: grid; place-items: center; }
+  .result img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+  .result .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 24px; }
+  .loader { display: none; flex-direction: column; align-items: center; gap: 14px; color: var(--muted); font-size: 14px; }
+  .loading .loader { display: flex; }
+  .loading .empty, .loading img { display: none; }
+  .spin { width: 42px; height: 42px; border-radius: 50%; border: 3px solid #d9cdbd; border-top-color: var(--accent); animation: s 1s linear infinite; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  .msg { font-size: 14px; min-height: 20px; margin: 0; }
+  .msg.err { color: #b3261e; }
+  .actions { display: flex; gap: 8px; }
+  .actions a, .actions button { flex: 1; text-align: center; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); text-decoration: none; font: inherit; font-size: 14px; cursor: pointer; }
+  .actions[hidden] { display: none; }
+
+  footer { max-width: 1120px; margin: 0 auto; padding: 0 20px 40px; color: var(--muted); font-size: 13px; }
+  .tips { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .tips div { border-top: 1px solid var(--line); padding-top: 10px; }
+  .tips b { color: var(--ink); display: block; margin-bottom: 2px; font-weight: 600; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">kombin<span>.</span>dene</div>
+  <h1>Kıyafeti almadan önce üzerinde gör.</h1>
+  <p class="lead">Kendi fotoğrafını yükle, Trendyol, Zara, Amazon ya da herhangi bir mağazadan beğendiğin kıyafetin görselini ekle. Yapay zekâ onu senin üzerine giydirsin.</p>
+</header>
+
+<main>
+  <!-- 1. Kişi -->
+  <section class="card">
+    <div class="step">Adım 1</div>
+    <h2>Senin fotoğrafın</h2>
+    <label class="drop" id="personDrop" data-target="person">
+      <button class="clear" type="button" aria-label="Kaldır">×</button>
+      <div class="ph"><b>Fotoğraf yükle</b>Tıkla, sürükle-bırak ya da yapıştır (Ctrl+V)</div>
+      <input type="file" accept="image/*" id="personFile" />
+    </label>
+    <p class="hint">En iyi sonuç: önden, tek kişi, belden yukarısı ya da boy fotoğrafı, sade arka plan.</p>
+  </section>
+
+  <!-- 2. Kıyafet -->
+  <section class="card">
+    <div class="step">Adım 2</div>
+    <h2>Kıyafet görseli</h2>
+    <label class="drop" id="garmentDrop" data-target="garment">
+      <button class="clear" type="button" aria-label="Kaldır">×</button>
+      <div class="ph"><b>Kıyafet görseli ekle</b>Ekran görüntüsü, indirdiğin görsel ya da kopyalanan resim</div>
+      <input type="file" accept="image/*" id="garmentFile" />
+    </label>
+    <div class="row">
+      <input type="url" id="garmentUrl" placeholder="veya görsel adresini yapıştır (https://...jpg)" />
+      <button class="btn-sm" type="button" id="useUrl">Ekle</button>
+    </div>
+    <p class="hint">İpucu: mağazada ürün resmine sağ tıkla → “Resim adresini kopyala”. Ürün sayfası linki değil, resmin kendi linki olmalı.</p>
+  </section>
+
+  <!-- 3. Sonuç -->
+  <section class="card">
+    <div class="step">Adım 3</div>
+    <h2>Üzerinde nasıl duruyor?</h2>
+    <div class="settings">
+      <label class="f">Kıyafet türü
+        <select id="category">
+          <option value="auto">Otomatik</option>
+          <option value="tops">Üst (tişört, gömlek, ceket)</option>
+          <option value="bottoms">Alt (pantolon, etek)</option>
+          <option value="one-pieces">Tek parça (elbise, tulum)</option>
+        </select>
+      </label>
+      <label class="f">Model
+        <select id="model">
+          <option value="kling">Kling Kolors (önerilen)</option>
+          <option value="fashn">FASHN (desen/yazı)</option>
+          <option value="leffa">Leffa</option>
+        </select>
+      </label>
+      <label class="f" id="codeWrap" style="grid-column: 1 / -1">Giriş kodu (varsa)
+        <input type="password" id="code" placeholder="Site sahibi kod belirlediyse gir" />
+      </label>
+    </div>
+    <button class="go" id="go" disabled>Üzerime giydir</button>
+    <div class="result" id="result">
+      <div class="empty">Sonuç burada görünecek.</div>
+      <div class="loader"><div class="spin"></div><span id="loadText">Giydiriliyor…</span></div>
+      <img id="resultImg" alt="Sanal deneme sonucu" hidden />
+    </div>
+    <p class="msg" id="msg"></p>
+    <div class="actions" id="actions" hidden>
+      <a id="download" href="#" target="_blank" rel="noopener" download="kombin.jpg">İndir</a>
+      <button type="button" id="again">Tekrar dene</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="tips">
+    <div><b>Fotoğrafın saklanmaz</b>Görseller yalnızca giydirme için yapay zekâ servisine gönderilir.</div>
+    <div><b>Yaklaşık 15–60 saniye</b>Sıra yoğunsa biraz daha uzun sürebilir.</div>
+    <div><b>Sonuç bir önizlemedir</b>Beden ve kalıp birebir yansımayabilir.</div>
+  </div>
+  Yalnızca kendi fotoğrafını ya da izni olan kişilerin fotoğrafını kullan.
+</footer>
+
+<script>
+const state = { person: null, garment: null, active: "person" };
+const $ = (id) => document.getElementById(id);
+const store = { get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+                set(k,v){ try { localStorage.setItem(k,v); } catch {} } };
+
+// Görseli tarayıcıda küçült (max 1024px, JPEG) — hem hızlı hem sunucu sınırının altında
+function shrink(file, max = 1024) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL("image/jpeg", 0.9));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Görsel okunamadı")); };
+    img.src = url;
+  });
+}
+
+function setImage(target, src) {
+  state[target] = src;
+  const drop = $(target + "Drop");
+  drop.querySelector("img")?.remove();
+  if (src) {
+    const img = document.createElement("img");
+    img.src = src; img.alt = "";
+    img.onerror = () => { if (target === "garment" && src.startsWith("http")) setMsg("Bu adresteki görsel önizlenemedi; yine de denenebilir. Olmazsa görseli indirip yükle.", true); };
+    drop.appendChild(img);
+    drop.classList.add("has");
+  } else drop.classList.remove("has");
+  $("go").disabled = !(state.person && state.garment);
+}
+
+async function handleFile(target, file) {
+  if (!file || !file.type.startsWith("image/")) return setMsg("Lütfen bir görsel dosyası seç.", true);
+  try { setImage(target, await shrink(file)); setMsg(""); }
+  catch (e) { setMsg(e.message, true); }
+}
+
+function setActive(t) {
+  state.active = t;
+  ["person", "garment"].forEach(x => $(x + "Drop").classList.toggle("active", x === t));
+}
+
+["person", "garment"].forEach((t) => {
+  const drop = $(t + "Drop"), input = $(t + "File");
+  input.addEventListener("change", () => handleFile(t, input.files[0]));
+  drop.addEventListener("click", () => setActive(t));
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", (e) => {
+    e.preventDefault(); drop.classList.remove("over");
+    const f = e.dataTransfer.files[0];
+    if (f) return handleFile(t, f);
+    const url = e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain");
+    if (url && /^https:\/\//.test(url)) setImage(t, url.trim());
+  });
+  drop.querySelector(".clear").addEventListener("click", (e) => {
+    e.preventDefault(); e.stopPropagation(); input.value = ""; setImage(t, null);
+  });
+});
+
+// Ctrl+V ile yapıştırma: kişi boşsa kişiye, değilse kıyafete
+document.addEventListener("paste", (e) => {
+  if (e.target.tagName === "INPUT") return;
+  const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith("image/"));
+  if (!item) return;
+  const target = state.active === "garment" || state.person ? "garment" : "person";
+  handleFile(target, item.getAsFile());
+});
+
+$("useUrl").addEventListener("click", () => {
+  const u = $("garmentUrl").value.trim();
+  if (!/^https:\/\/\S+$/.test(u)) return setMsg("Geçerli bir https:// görsel adresi gir.", true);
+  setImage("garment", u); setMsg("");
+});
+
+$("code").value = store.get("kd_code") || "";
+
+function setMsg(t, err = false) { $("msg").textContent = t; $("msg").className = "msg" + (err ? " err" : ""); }
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function run() {
+  const go = $("go"), result = $("result"), img = $("resultImg");
+  go.disabled = true; setMsg(""); $("actions").hidden = true;
+  result.classList.add("loading"); $("loadText").textContent = "Gönderiliyor…";
+  store.set("kd_code", $("code").value);
+
+  try {
+    const r = await fetch("/api/tryon", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        person: state.person, garment: state.garment,
+        model: $("model").value, category: $("category").value, code: $("code").value,
+      }),
+    });
+    const job = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(job.error || "Gönderilemedi");
+
+    const q = new URLSearchParams({ status_url: job.status_url, response_url: job.response_url });
+    const started = Date.now();
+    while (true) {
+      await sleep(2500);
+      const secs = Math.round((Date.now() - started) / 1000);
+      const s = await fetch("/api/status?" + q);
+      const d = await s.json().catch(() => ({}));
+      if (!s.ok) throw new Error(d.error || "Durum alınamadı");
+      if (d.done) {
+        img.src = d.image; img.hidden = false;
+        $("download").href = d.image; $("actions").hidden = false;
+        setMsg("Hazır!");
+        break;
+      }
+      $("loadText").textContent = d.status === "IN_QUEUE"
+        ? `Sırada bekleniyor${d.position != null ? " (" + d.position + ")" : ""}… ${secs} sn`
+        : `Giydiriliyor… ${secs} sn`;
+      if (secs > 240) throw new Error("Zaman aşımı. Lütfen tekrar dene.");
+    }
+  } catch (e) {
+    setMsg(e.message, true);
+  } finally {
+    result.classList.remove("loading");
+    go.disabled = !(state.person && state.garment);
+  }
+}
+
+$("go").addEventListener("click", run);
+$("again").addEventListener("click", run);
+setActive("person");
+</script>
+</body>
+</html>
